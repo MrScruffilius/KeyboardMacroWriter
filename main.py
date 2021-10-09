@@ -1,5 +1,5 @@
 # TODO checken ob auf anderen rechnern python auch ausführbar ist
-# TODO edge cases abfangen
+
 
 lexikon = ['\t', '\n', '\r', ' ', '!', '"', '#', '$', '%', '&', "'", '(',
 ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7',
@@ -23,28 +23,24 @@ lexikon = ['\t', '\n', '\r', ' ', '!', '"', '#', '$', '%', '&', "'", '(',
 'shift', 'shiftleft', 'shiftright', 'sleep', 'space', 'stop', 'subtract', 'tab',
 'up', 'volumedown', 'volumemute', 'volumeup', 'win', 'winleft', 'winright', 'yen',
 'command', 'option', 'optionleft', 'optionright']
-# interpretiert die file.txt und macht daraus eine .py und dann eine .exe
+
+
 def file_interpreter(file_name):
     file_name = str(file_name)
     orig_file_name = file_name
     file_name = file_name.__add__(".txt")
-
     try:
         readin = open(file_name, "rt")
     except:
         print("ERROR: No such file")
         return
     liste = readin.readlines()
-
     for i in range(len(liste)):
         liste[i] = liste[i].replace('\n', '')
-
     f = open(orig_file_name + ".py", "w")
     f.write("import time\n")
     f.write("import pyautogui as pa\n")
     f.write("if __name__=='__main__':\n")
-    # text muss mit tab davor geschrieben werden
-
     flag_dict = dict()
     jump_dict = dict()
     i = 0
@@ -59,12 +55,30 @@ def file_interpreter(file_name):
                 f.write("\tpa.typewrite('" + liste[i][3:] + "')\n")
         elif temp[0].lower() == "f>" or temp[0][0:2].lower()=="f>":
             if temp[0].lower()!="f>":
+                if temp.__sizeof__()>1:
+                    print("Error: flag shouldn't be seperated by a flag")
+                    return
                 flag_dict[temp[0][2:]] = i
             # adds flag and line to dictionary
             else:
+                if temp.__sizeof__()>2:
+                    print("Error: flag shouldn't be seperated by a flag")
+                    return
+                if temp.__sizeof__()<2:
+                    print("Error: flag shouldn't be empty")
+                    return
                 flag_dict[temp[1]] = i
-        elif temp[0].lower() == "jmp>" or temp[0][0:4].lower()=="t>":
+        elif temp[0].lower() == "jmp>" or temp[0][0:4].lower()=="jmp>":
             if temp[0].lower()!="jmp>":
+                if temp.__sizeof__()>2:
+                    print("Error: jmp-Problem in line "+i)
+                    return
+                if temp.__sizeof__()<2:
+                    print("Error: jmp-Problem in line "+i)
+                    return
+                if not (temp[1].isdecimal()):
+                    print("Error: number-Problem in line " + i)
+                    return
                 if int(temp[1]) < 1:
                     continue
                 if i in jump_dict:
@@ -75,12 +89,20 @@ def file_interpreter(file_name):
                         jump_dict.pop(i)
                 else:
                     jump_dict[i] = int(temp[1])
-
                     jump_dict[i] -= 1;
                     if jump_dict[i] < 1:
                         jump_dict.pop(i)
                     i = flag_dict[temp[0][4:]]
             else:
+                if temp.__sizeof__()>3:
+                    print("Error: jmp-Problem in line "+i)
+                    return
+                if temp.__sizeof__()<3:
+                    print("Error: jmp-Problem in line "+i)
+                    return
+                if not (temp[2].isdecimal()):
+                    print("Error: number-Problem in line " + i)
+                    return
                 if int(temp[2]) < 1:
                     continue
                 if i in jump_dict:
@@ -98,11 +120,16 @@ def file_interpreter(file_name):
                     i = flag_dict[temp[1]]
         elif temp[0].lower() == "w>" or temp[0][0:2].lower()=="w>":
             if temp[0].lower()!="w>":
+                if not (temp[0][2:].isdecimal()):
+                    print("Error: number-Problem in line "+i)
+                    return
                 f.write("\ttime.sleep(" + str((int(temp[0][2:]) / 1000)) + ")\n")
             # adds flag and line to dictionary
             else:
+                if not (temp[1].isdecimal()):
+                    print("Error: number-Problem in line "+i)
+                    return
                 f.write("\ttime.sleep(" + str((int(temp[1]) / 1000)) + ")\n")
-
         elif temp.__sizeof__() > 1:
             for k in range(len(temp)):
                 if temp[k].lower() not in lexikon:
@@ -135,7 +162,6 @@ def print_help():
     print(" -show all possible key-names")
     print("exit")
     print(" -exit the program")
-
 
 
 if __name__ == '__main__':
