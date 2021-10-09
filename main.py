@@ -1,6 +1,4 @@
-# TODO beispielprogramme in README
 # TODO checken ob auf anderen rechnern python auch ausführbar ist
-# TODO lexikon hinzufügen
 # TODO edge cases abfangen
 
 lexikon = ['\t', '\n', '\r', ' ', '!', '"', '#', '$', '%', '&', "'", '(',
@@ -52,7 +50,7 @@ def file_interpreter(file_name):
     i = 0
     while i < len(liste):
         temp = liste[i].split(' ', 10000)
-        if temp[0] == "//":
+        if temp[0] == "//" or temp[0][0:2]=="//":
             pass
         elif temp[0].lower() == "t>"or temp[0][0:2].lower()=="t>":
             if temp[0].lower() != "t>":
@@ -66,7 +64,7 @@ def file_interpreter(file_name):
             else:
                 flag_dict[temp[1]] = i
         elif temp[0].lower() == "jmp>" or temp[0][0:4].lower()=="t>":
-            if temp[0].lower()!="t>":
+            if temp[0].lower()!="jmp>":
                 if int(temp[1]) < 1:
                     continue
                 if i in jump_dict:
@@ -133,6 +131,11 @@ def print_help():
     print("   the .txt-ending to translate it")
     print("help")
     print(" - ...")
+    print("lex")
+    print(" -show all possible key-names")
+    print("exit")
+    print(" -exit the program")
+
 
 
 if __name__ == '__main__':
@@ -144,6 +147,10 @@ if __name__ == '__main__':
         inpu = input("\n")
         inpu = inpu.replace(' ', '')
         inpu = inpu.lower()
+        if inpu == "exit":
+            break
+        if inpu == "lex":
+            print(lexikon)
         if inpu == "help":
             print_help()
         elif inpu[0:3] == "mac":
